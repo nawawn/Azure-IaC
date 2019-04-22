@@ -1,26 +1,26 @@
 ### Azure-IaC
 Infrastructure as Code for Azure IaaS
 
-##Naming Convention prefix/suffix
+## Naming Convention prefix/suffix
 
-Resource Group Name  - RG 
-NetworkSecurityGroup - NSG 
-Virtual Network      - VNet 
-Virtual NIC          - VNic 
-Public Ip address    - Pip 
-Subnet               - Sub 
-Traffic Manager      - TM 
-Load Balancer        - LB 
-Application Gateway  - AG 
-App Service          - App 
-Key Valut            - KV 
-Sql Server           - SQL 
-Sql Database         - SDb 
-Storage Account      - stor 
-Virtual Machine      - VM 
-Virtual Data Disk    - VDD 
-OS Disk              - OSD 
-Azure Subscription   - Subs 
-Availablity Set      - Avst 
+Resource Group Name  - RG \s
+NetworkSecurityGroup - NSG \s
+Virtual Network      - VNet \s
+Virtual NIC          - VNic \s
+Public Ip address    - Pip \s
+Subnet               - Sub \s
+Traffic Manager      - TM \s
+Load Balancer        - LB \s
+Application Gateway  - AG \s
+App Service          - App \s
+Key Valut            - KV \s
+Sql Server           - SQL \s
+Sql Database         - SDb \s
+Storage Account      - stor \s
+Virtual Machine      - VM \s
+Virtual Data Disk    - VDD \s
+OS Disk              - OSD \s
+Azure Subscription   - Subs \s
+Availablity Set      - Avst \s
 
-*Note*: Storage Account Name - lowercase only, can't have dash or dot.
+**Note**: Storage Account Name - lowercase only, can't have dash or dot.                                         
