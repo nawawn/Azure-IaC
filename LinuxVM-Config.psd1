@@ -1,8 +1,8 @@
-﻿@{
-    Description   = 'Azure-WindowsVM'
+@{
+    Description   = 'Azure-LinuxVM'
 
-    ResourceGroup = 'RG-IIS-Pri'
-    Location      = 'uksouth'    
+    ResourceGroup  = 'RG-IIS-Pri'
+    Location       = 'uksouth'    
     StorageAccount = 'storprod'
     Type           = 'Standard_LRS'
     
@@ -13,21 +13,21 @@
         SubNetName = 'FrontendSubnet'
         SubNetAddr = '10.0.0.0/24'
         
-        VNicName = 'Vnic-IIS-Pri'
+        VNicName = 'Vnic-Ubn-Pxy'
         AllocationMethod = 'Dynamic'
     }
     
     VM = @{
-        VMName = 'VM-IIS-Pri'
+        VMName = 'VM-Ubn-Pxy'
         VMSize = 'Basic_A1'
-        VMUser = 'Root'
+        VMUser = 'Naw.Awn'
         VMPass = '' #Base64
 
-        PublisherName = 'MicrosoftWindowsServer'
-        Offer = 'WindowsServer'
-        Skus  = '2019-Datacenter'
+        PublisherName = 'Canonical'
+        Offer = 'UbuntuServer'
+        Skus  = '18.04-LTS'
         Version = 'Latest'
 
-        VhdName = 'OSD-IIS-Pri.vhd'
+        VhdName = 'OSD-Ubn-Pxy.vhd'
     }      
 }
