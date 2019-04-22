@@ -2,7 +2,8 @@
 Infrastructure as Code for Azure IaaS
 
 #### Naming Convention prefix/suffix
-
+|Resources             |Prefix |
+|----------------------|-------|
 | Resource Group Name  |- RG   |
 | NetworkSecurityGroup |- NSG  |
 | Virtual Network      |- VNet |
