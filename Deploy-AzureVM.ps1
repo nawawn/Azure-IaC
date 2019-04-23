@@ -15,7 +15,7 @@ Param(
 )
 #requires -Modules Az
 
-Function Test-AzPSSession{          
+Function Test-AzPSSession{
     return($null -ne (Get-AzContext))
 }
 
@@ -55,7 +55,7 @@ Function Test-StorageAccount{
     }
 }
 
-Function Test-VirtualNetwork{    
+Function Test-VirtualNetwork{
     [OutputType([Bool])]
     Param(        
         [Parameter(Mandatory)][String]$ResourceGroup,
@@ -103,6 +103,11 @@ Function New-VMCredential{
 }
 
 #region Deployment
+Write-Verbose "[*] Checking Azure PowerShell Session..."
+If(-Not(Test-AzPSSession)){
+    Connect-AzAccount    
+}
+
 Write-Verbose "[*] Checking Config File..."
 If((Test-Path $ConfigFile -PathType Leaf) -and (Test-PSDataFile $ConfigFile)){
     $Config = Import-PowerShellDataFile -Path $ConfigFile
