@@ -2,7 +2,6 @@
 Infrastructure as Code for Azure IaaS
 
 #### Naming Convention prefix/suffix
-{table-plus:columnStyles=width100%}
 |Resources             |Prefix|
 |----------------------|------|
 | Resource Group Name  | RG   |
@@ -24,6 +23,6 @@ Infrastructure as Code for Azure IaaS
 | OS Disk              | OSD  |
 | Azure Subscription   | Subs |
 | Availablity Set      | Avst |
-{table-plus} 
+
 
 **Note**: Storage Account Name - lowercase only, can't have dash or dot.                                         
