@@ -149,8 +149,7 @@ If(-Not(Test-VirtualNIC -Name $Config.Vnet.VNicName)){
 
 Write-Verbose "[*] Checking the Virtual Machine..."
 If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.VM.VMName)){
-    Write-Verbose " - Provisioning the Virtual Machine Configuration..."
-    
+    Write-Verbose " - Provisioning the Virtual Machine Configuration..."    
     $VMCred  = New-VMCredential -UserName $Config.VM.VMUser -Password $Config.VM.VMPass
 
     $VMConfig = New-AzVMConfig -VMName $Config.VM.VMName -VMSize $Config.VM.VMSize    
