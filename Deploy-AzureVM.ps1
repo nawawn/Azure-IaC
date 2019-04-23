@@ -4,12 +4,14 @@
 .DESCRIPTION
    This script deploys VM on the Azure environment using the config file as a parameter. 
    Written by Naw Awn, Proof of Concept for Infrastructure as Code using PowerShell.
+.Example
+   Deploy-AzureVM.ps1 -ConfigFile ".\WindowsVM-Config.psd1"
 #>
 
 [CmdletBinding()]
 Param(
     [Parameter(Mandatory)]
-    $ConfigFile
+    $ConfigFile	
 )
 #requires -Modules Az
 
@@ -86,6 +88,22 @@ Function Test-VirtualMachine{
     }
 }
 
+function Base64{
+    Param([String]$Text)      
+    return ([system.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($Text)))   
+}
+
+Function New-VMCredential{
+    [OutputType([PSCredential])]
+    Param(
+        [Parameter(Mandatory)][string]$UserName,
+        [Parameter(Mandatory)][string]$Base64            
+    )    
+    Return (New-Object -TypeName System.Management.Automation.PSCredential($UserName,(Base64 $Base64 | ConvertTo-SecureString -AsPlainText -Force)))
+}
+
+#region Deployment
+Write-Verbose "[*] Checking Config File..."
 If((Test-Path $ConfigFile -PathType Leaf) -and (Test-PSDataFile $ConfigFile)){
     $Config = Import-PowerShellDataFile -Path $ConfigFile
 }
@@ -94,15 +112,21 @@ Else {
     return
 }
 
+Write-Verbose "[*] Checking the Resource Group..."
 If (-Not(Test-ResourceGroup -ResourceGroup $Config.ResourceGroup)){
+    Write-Verbose " - Creating Resource Group: $($Config.ResourceGroup)"
     New-AzResourceGroup -Name $Config.ResourceGroup -Location $Config.Location
 }
 
+Write-Verbose "[*] Checking the Storage Account..."
 If(-Not(Test-StorageAccount -ResourceGroup $Config.ResourceGroup -Name $Config.StorageAccount)){
+    Write-Verbose " - Creating Storage Account: $($Config.StorageAccount)"
     New-AzStorageAccount -Name $Config.StorageAccount -Type $Config.Type -ResourceGroupName $Config.ResourceGroup -Location $Config.Location
 }
 
+Write-Verbose "[*] Checking the Virtual Network..."
 If(-Not(Test-VirtualNetwork -ResourceGroup $Config.ResourceGroup -Name $Config.Vnet.VNetName)){
+    Write-Verbose " - Creating Virtual Network: $($Config.Vnet.VNetName)"
     $VnetAddr = $Config.Vnet.VNetAddr
     $SubnetName = $Config.Vnet.SubNetName
     $SubnetAddr = $Config.Vnet.SubNetAddr
@@ -110,30 +134,33 @@ If(-Not(Test-VirtualNetwork -ResourceGroup $Config.ResourceGroup -Name $Config.V
     $Vnet = New-AzVirtualNetwork -Name $Config.Vnet.VNetName -ResourceGroupName $Config.ResourceGroup -Location $Config.Locaion -AddressPrefix $VnetAddr -Subnet $Subnet
 }
 
-#With Public IP
+Write-Verbose "[*] Checking the Virtual Network Interface..."
 If(-Not(Test-VirtualNIC -Name $Config.Vnet.VNicName)){
+    Write-Verbose " - Creating Virtual NIC: $($Config.Vnet.VNicName)"
     $PublicIP = New-AzPublicIpAddress -Name $Config.Vnet.VNicName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -AllocationMethod $Config.Vent.AllocationMethod
     $VNic = New-AzNetworkInterface -Name $Config.Vnet.VNicName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -SubnetId $Vnet.Subnets[0].Id -PublicIpAddressId $PublicIP.Id
+    Write-Verbose " - Public IP Address: $($PublicIP.IPAddress)"
 }
 
-#Virtual Machine
+Write-Verbose "[*] Checking the Virtual Machine..."
 If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.VM.VMName)){
-    Write-Verbose "Provisioning VM Config..."
-    <# Work in Progress
-    $VMConfig = New-AzVMConfig -VMName $VMName -VMSize $VMSize
-    $VMCred   = (Get-Credential -Message "VM Admin Credentials")
-    $VMConfig = Set-AzVMOperatingSystem -VM $VMConfig -Windows -ComputerName $VMName -Credential $VMCred -ProvisionVMAgent -EnableAutoUpdate
-    $VMConfig = Set-AzVMSourceImage -VM $VMConfig -PublisherName $PublisherName -Offer $Offer -Skus $Skus -Version $Version
+    Write-Verbose " - Provisioning the Virtual Machine Configuration..."
+    
+    $VMCred  = New-VMCredential -UserName $Config.VM.VMUser -Password $Config.VM.VMPass
+
+    $VMConfig = New-AzVMConfig -VMName $Config.VM.VMName -VMSize $Config.VM.VMSize    
+    $VMConfig = Set-AzVMOperatingSystem -VM $VMConfig -Windows -ComputerName $Config.VM.VMName -Credential $VMCred -ProvisionVMAgent -EnableAutoUpdate
+    $VMConfig = Set-AzVMSourceImage -VM $VMConfig -PublisherName $Config.VM.PublisherName -Offer $Config.VM.Offer -Skus $Config.VM.Skus -Version $Config.VM.Version
     $VMConfig = Add-AzVMNetworkInterface -VM $VMConfig -Id $VNic.Id
 
-    $VhdName = 'OSD-IIS-Pri.vhd'
+    $VhdName = $Config.VM.VhdName
     $StorageAcc = Get-AzStorageAccount -ResourceGroupName $ResourceGroup -Name $StorAccName
 
     #CreateOption = FromImage | Attach | Empty
     $OsDiskUri = $StorageAcc.PrimaryEndpoints.Blob.ToString() + "VHDs/" + $VhdName
-    $VmConfig = Set-AzVMOSDisk -VM $VMConfig -Name $VhdName -VhdUri $OsDiskUri -CreateOption FromImage
+    $VMConfig = Set-AzVMOSDisk -VM $VMConfig -Name $VhdName -VhdUri $OsDiskUri -CreateOption FromImage
 
-    Write-Verbose "Deploying the VM..."
-    New-AzVM -ResourceGroupName $ResourceGroup -Location $Locaion -VM $VmConfig
-    #>
+    Write-Verbose "[*]Deploying the Virtual Machine..."
+    New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Locaion -VM $VmConfig    
 }
+#endregion Deployment
