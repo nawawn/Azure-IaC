@@ -25,4 +25,5 @@ Infrastructure as Code for Azure IaaS
 | Azure Subscription   | Subs |
 | Availablity Set      | Avst |
 {table-plus} 
+
 **Note**: Storage Account Name - lowercase only, can't have dash or dot.                                         
