@@ -133,8 +133,8 @@ Write-Verbose "[*] Checking the Virtual Network..."
 If(-Not(Test-VirtualNetwork -ResourceGroup $Config.ResourceGroup -Name $Config.Vnet.VNetName)){
     Write-Verbose " - Creating Virtual Network: $($Config.Vnet.VNetName)"
     $VnetAddr = $Config.Vnet.VNetAddr
-    $SubnetName = $Config.Vnet.SubNetName
-    $SubnetAddr = $Config.Vnet.SubNetAddr
+    $SubnetName = $Config.Vnet.SubnetName
+    $SubnetAddr = $Config.Vnet.SubnetAddr
     $Subnet = New-AzVirtualNetworkSubnetConfig -Name $SubnetName -AddressPrefix $SubnetAddr
     $Vnet = New-AzVirtualNetwork -Name $Config.Vnet.VNetName -ResourceGroupName $Config.ResourceGroup -Location $Config.Locaion -AddressPrefix $VnetAddr -Subnet $Subnet
 }

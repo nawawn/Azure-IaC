@@ -10,8 +10,8 @@
         VNetName = 'Vnet-IIS-Pri'
         VNetAddr = '10.0.1.0/16'
 
-        SubNetName = 'FrontendSubnet'
-        SubNetAddr = '10.0.0.0/24'
+        SubnetName = 'FrontendSubnet'
+        SubnetAddr = '10.0.0.0/24'
         
         VNicName = 'Vnic-IIS-Pri'
         AllocationMethod = 'Dynamic'
