@@ -88,7 +88,7 @@ Function Test-VirtualMachine{
     }
 }
 
-function Base64{
+Function Base64{
     Param([String]$Text)      
     return ([system.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($Text)))   
 }
