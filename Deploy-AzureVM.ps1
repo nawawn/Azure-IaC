@@ -136,7 +136,7 @@ If(-Not(Test-VirtualNetwork -ResourceGroup $Config.ResourceGroup -Name $Config.V
     $SubnetName = $Config.Vnet.SubnetName
     $SubnetAddr = $Config.Vnet.SubnetAddr
     $Subnet = New-AzVirtualNetworkSubnetConfig -Name $SubnetName -AddressPrefix $SubnetAddr
-    $Vnet = New-AzVirtualNetwork -Name $Config.Vnet.VNetName -ResourceGroupName $Config.ResourceGroup -Location $Config.Locaion -AddressPrefix $VnetAddr -Subnet $Subnet
+    $Vnet = New-AzVirtualNetwork -Name $Config.Vnet.VNetName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -AddressPrefix $VnetAddr -Subnet $Subnet
 }
 
 Write-Verbose "[*] Checking the Virtual Network Interface..."
@@ -165,6 +165,6 @@ If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.
     $VMConfig = Set-AzVMOSDisk -VM $VMConfig -Name $VhdName -VhdUri $OsDiskUri -CreateOption FromImage
 
     Write-Verbose "[*]Deploying the Virtual Machine..."
-    New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Locaion -VM $VmConfig    
+    New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -VM $VmConfig    
 }
 #endregion Deployment
