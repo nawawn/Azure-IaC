@@ -153,6 +153,7 @@ If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.
     $VMCred  = New-VMCredential -UserName $Config.VM.VMUser -Password $Config.VM.VMPass
 
     $VMConfig = New-AzVMConfig -VMName $Config.VM.VMName -VMSize $Config.VM.VMSize    
+    #For Linux use -Linux Switch
     $VMConfig = Set-AzVMOperatingSystem -VM $VMConfig -Windows -ComputerName $Config.VM.VMName -Credential $VMCred -ProvisionVMAgent -EnableAutoUpdate
     $VMConfig = Set-AzVMSourceImage -VM $VMConfig -PublisherName $Config.VM.PublisherName -Offer $Config.VM.Offer -Skus $Config.VM.Skus -Version $Config.VM.Version
     $VMConfig = Add-AzVMNetworkInterface -VM $VMConfig -Id $VNic.Id
