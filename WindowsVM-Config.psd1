@@ -20,9 +20,10 @@
     VM = @{
         VMName = 'VM-IIS-Pri'
         VMSize = 'Basic_A1'
-        VMUser = 'Root'
-        VMPass = '' #Base64
-
+        VMUser = 'RootAdmin'
+        VMPass = '#Base64'
+        OSType = 'Windows'
+        
         PublisherName = 'MicrosoftWindowsServer'
         Offer = 'WindowsServer'
         Skus  = '2019-Datacenter'
