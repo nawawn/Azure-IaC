@@ -177,7 +177,7 @@ If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.
     Write-Verbose "[*]Creating the VM Configuration..."
     $VMConfig = New-PSVirtualMachine @PSVM 
     Write-Verbose "[*]Deploying the Virtual Machine..."
-    New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -VM $VMConfig
+    New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -VM $VMConfig -WhatIf
 }
 
 #endregion VM Deployment

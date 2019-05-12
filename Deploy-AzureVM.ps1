@@ -126,8 +126,9 @@ If (-Not(Test-ResourceGroup -ResourceGroup $Config.ResourceGroup)){
 
 Write-Verbose "[*] Checking the Storage Account..."
 If(-Not(Test-StorageAccount -ResourceGroup $Config.ResourceGroup -Name $Config.StorageAccount)){
-    Write-Verbose " - Creating Storage Account: $($Config.StorageAccount)"
-    New-AzStorageAccount -Name $Config.StorageAccount -Type $Config.Type -ResourceGroupName $Config.ResourceGroup -Location $Config.Location
+    $storName = $($Config.StorageAccount).ToLower()
+    Write-Verbose " - Creating Storage Account: $storName"
+    New-AzStorageAccount -Name $storName -Type $Config.Type -ResourceGroupName $Config.ResourceGroup -Location $Config.Location
 }
 
 Write-Verbose "[*] Checking the Virtual Network..."
