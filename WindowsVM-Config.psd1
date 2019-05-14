@@ -1,34 +1,29 @@
 ﻿@{
     Description   = 'Azure-WindowsVM'
-
-    ResourceGroup = 'RG-IIS-Pri'
-    Location      = 'uksouth'    
-    StorageAccount = 'storprod'
-    Type           = 'Standard_LRS'
-    
+    ResourceGroup = 'RG-Test-IIS-01'
+    Location      = 'ukwest'    
+           
     Vnet = @{
-        VNetName = 'Vnet-IIS-Pri'
-        VNetAddr = '10.0.1.0/16'
+        VNetName = 'Vnet-Test-Env'
+        VNetAddr = '10.0.0.0/16'
 
-        SubnetName = 'FrontendSubnet'
-        SubnetAddr = '10.0.0.0/24'
+        SubNetName = 'LAN-Subnet'
+        SubNetAddr = '10.0.0.0/24'
         
-        VNicName = 'Vnic-IIS-Pri'
+        VNicName = 'Vnic-Test-IIS-01'
         AllocationMethod = 'Dynamic'
     }
     
     VM = @{
-        VMName = 'VM-IIS-Pri'
+        VMName = 'VM-Test-IIS-01'
         VMSize = 'Basic_A1'
         VMUser = 'RootAdmin'
-        VMPass = '#Base64'
+        VMPass = 'TXIuSkJvbmQwMDc='
         OSType = 'Windows'
-        
         PublisherName = 'MicrosoftWindowsServer'
-        Offer = 'WindowsServer'
-        Skus  = '2019-Datacenter'
+        Offer   = 'WindowsServer'
+        Skus    = '2019-Datacenter'
         Version = 'Latest'
-
-        VhdName = 'OSD-IIS-Pri.vhd'
+        VhdName = 'OSD-Test-IIS-01.vhd'
     }      
 }
