@@ -149,8 +149,15 @@ If (-Not(Test-ResourceGroup -ResourceGroup $Config.ResourceGroup)){
     New-AzResourceGroup -Name $Config.ResourceGroup -Location $Config.Location
 }
 
-Write-Verbose "[*] Generating new credential for VM..."
-$VMCred  = New-VMCredential -UserName $Config.VM.VMUser -Password (Base64 -Text "$($Config.VM.VMPass)")
+Write-Verbose "[*] Checking the Virtual Network..."
+If(-Not(Test-VirtualNetwork -ResourceGroup $Config.ResourceGroup -Name $Config.Vnet.VNetName)){
+    Write-Verbose " - Creating Virtual Network: $($Config.Vnet.VNetName)"
+    $VnetAddr = $Config.Vnet.VNetAddr
+    $SubnetName = $Config.Vnet.SubnetName
+    $SubnetAddr = $Config.Vnet.SubnetAddr
+    $Subnet = New-AzVirtualNetworkSubnetConfig -Name $SubnetName -AddressPrefix $SubnetAddr
+    $Vnet = New-AzVirtualNetwork -Name $Config.Vnet.VNetName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -AddressPrefix $VnetAddr -Subnet $Subnet
+}
 
 Write-Verbose "[*] Checking the Virtual Network Interface..."
 If(-Not(Test-VirtualNIC -Name $Config.Vnet.VNicName)){
@@ -160,19 +167,22 @@ If(-Not(Test-VirtualNIC -Name $Config.Vnet.VNicName)){
     Write-Verbose " - Public IP Address: $($PublicIP.IPAddress)"
 }
 
+Write-Verbose "[*] Generating new credential for VM..."
+$VMCred  = New-VMCredential -UserName $Config.VM.VMUser -Password (Base64 -Text "$($Config.VM.VMPass)")
+
 Write-Verbose "[*] Checking the Virtual Machine..."
 If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.VM.VMName)){
     $PSVM = @{
-        VMName  = $($Config.VM.VMName)
-        VMSize  = $($Config.VM.VMSize)
         VMCred  = $VMCred
+        VMName  = $($Config.VM.VMName)
+        VMSize  = $($Config.VM.VMSize)        
         OSType  = $($Config.VM.OSType)
         VMNicId = $($VNic.Id)
-        VhdName = $($Config.VM.VhdName)
-        PublisherName = $($Config.VM.PublisherName)
+        VhdName = $($Config.VM.VhdName)        
         Offer   = $($Config.VM.Offer)
         Skus    = $($Config.VM.Skus)
         Version = $($Config.VM.Version)
+        PublisherName = $($Config.VM.PublisherName)
     }
     Write-Verbose "[*]Creating the VM Configuration..."
     $VMConfig = New-PSVirtualMachine @PSVM 
