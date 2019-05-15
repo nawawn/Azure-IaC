@@ -185,8 +185,9 @@ If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.
     Write-Verbose "[*]Creating the VM Configuration..."
     $VMConfig = New-PSVirtualMachine @PSVM -ErrorAction 'Stop'
     Write-Verbose "[*]Deploying the Virtual Machine..."
-    Measure-Command -Expression {New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -VM $VMConfig}
+    New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -VM $VMConfig
+    #-AsJob
 }
 #Stop-AzVM -ResourceGroupName $Config.ResourceGroup -Name $($Config.VM.VMName)
-#Remove-AzResourceGroup -ResourceGroupName $Config.ResourceGroup
+#Remove-AzResourceGroup -ResourceGroupName $Config.ResourceGroup -Force
 #endregion VM Deployment
