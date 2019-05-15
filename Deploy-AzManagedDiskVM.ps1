@@ -13,7 +13,6 @@ Param(
     [Parameter(Mandatory)]
     $ConfigFile	
 )
-#requires -Modules Az
 
 Function Test-AzPSSession{
     return($null -ne (Get-AzContext))
@@ -91,8 +90,7 @@ Function New-VMCredential{
     Return (New-Object -TypeName System.Management.Automation.PSCredential($UserName,(Base64 $Base64 | ConvertTo-SecureString -AsPlainText -Force)))
 }
 
-Function New-PSVirtualMachine{
-    [OutputType([PSVirtualMachine])]
+Function New-PSVirtualMachine{    
     Param(
         [Parameter(Mandatory)]           
         [String]$VMName,
@@ -162,13 +160,13 @@ If(-Not(Test-VirtualNetwork -ResourceGroup $Config.ResourceGroup -Name $Config.V
 Write-Verbose "[*] Checking the Virtual Network Interface..."
 If(-Not(Test-VirtualNIC -Name $Config.Vnet.VNicName)){
     Write-Verbose " - Creating Virtual NIC: $($Config.Vnet.VNicName)"
-    $PublicIP = New-AzPublicIpAddress -Name $Config.Vnet.VNicName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -AllocationMethod $Config.Vent.AllocationMethod
+    $PublicIP = New-AzPublicIpAddress -Name $Config.Vnet.VNicName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -AllocationMethod $Config.Vnet.AllocationMethod
     $VNic = New-AzNetworkInterface -Name $Config.Vnet.VNicName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -SubnetId $Vnet.Subnets[0].Id -PublicIpAddressId $PublicIP.Id
     Write-Verbose " - Public IP Address: $($PublicIP.IPAddress)"
 }
 
 Write-Verbose "[*] Generating new credential for VM..."
-$VMCred  = New-VMCredential -UserName $Config.VM.VMUser -Password (Base64 -Text "$($Config.VM.VMPass)")
+$VMCred  = New-VMCredential -UserName $Config.VM.VMUser -Base64 $($Config.VM.VMPass)
 
 Write-Verbose "[*] Checking the Virtual Machine..."
 If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.VM.VMName)){
@@ -187,7 +185,9 @@ If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.
     Write-Verbose "[*]Creating the VM Configuration..."
     $VMConfig = New-PSVirtualMachine @PSVM 
     Write-Verbose "[*]Deploying the Virtual Machine..."
-    New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -VM $VMConfig -WhatIf
+    Measure-Command -Expression {New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -VM $VMConfig}
 }
 
+#Stop-AzVM -ResourceGroupName $Config.ResourceGroup -Name $($Config.VM.VMName)
+#Remove-AzResourceGroup -ResourceGroupName $Config.ResourceGroup
 #endregion VM Deployment
