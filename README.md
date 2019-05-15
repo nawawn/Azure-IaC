@@ -14,7 +14,7 @@ Infrastructure as Code for Azure IaaS
 | Load Balancer        | LB   |
 | Application Gateway  | AG   |
 | App Service          | App  |
-| Key Valut            | KV   |
+| Key Vault            | KV   |
 | Sql Server           | SQL  |
 | Sql Database         | SDb  |
 | Storage Account      | stor |
@@ -25,4 +25,8 @@ Infrastructure as Code for Azure IaaS
 | Availablity Set      | Avst |
 
 
-**Note**: Storage Account Name - lowercase only, can't have dash or dot.                                         
+**Note**: Storage Account Name - lowercase only, can't have dash or dot.  
+
+__Deploy-AzManagedDiskVM.ps1__ Deploy Virtual Machine in Azure IaaS environment using the configuration template psd1 file. Along with the VM, this also deploy a Virutal Network with a subnet, a Virtual NIC for the VM and assign a Public IP address to the VM. 
+
+                                        
