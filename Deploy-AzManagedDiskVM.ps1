@@ -120,7 +120,7 @@ Function New-PSVirtualMachine{
     $VMConfig = Set-AzVMSourceImage -VM $VMConfig -PublisherName $PublisherName -Offer $Offer -Skus $Skus -Version $Version
     $VMConfig = Add-AzVMNetworkInterface -VM $VMConfig -Id $VMNicId
     $VMConfig = Set-AzVMOSDisk -VM $VMConfig -Name $VhdName -CreateOption 'FromImage'
-    $VMConfig = Set-AzVMBootDiagnostics -Disable
+    $VMConfig = Set-AzVMBootDiagnostics -VM $VMConfig -Disable
 
     return $VMConfig
 }
@@ -155,6 +155,8 @@ If(-Not(Test-VirtualNetwork -ResourceGroup $Config.ResourceGroup -Name $Config.V
     $SubnetAddr = $Config.Vnet.SubnetAddr
     $Subnet = New-AzVirtualNetworkSubnetConfig -Name $SubnetName -AddressPrefix $SubnetAddr
     $Vnet = New-AzVirtualNetwork -Name $Config.Vnet.VNetName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -AddressPrefix $VnetAddr -Subnet $Subnet
+}Else {
+    $Vnet = Get-AzVirtualNetwork -Name $Config.Vnet.VNetName -ResourceGroupName $Config.ResourceGroup
 }
 
 Write-Verbose "[*] Checking the Virtual Network Interface..."
@@ -163,6 +165,8 @@ If(-Not(Test-VirtualNIC -Name $Config.Vnet.VNicName)){
     $PublicIP = New-AzPublicIpAddress -Name $Config.Vnet.VNicName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -AllocationMethod $Config.Vnet.AllocationMethod
     $VNic = New-AzNetworkInterface -Name $Config.Vnet.VNicName -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -SubnetId $Vnet.Subnets[0].Id -PublicIpAddressId $PublicIP.Id
     Write-Verbose " - Public IP Address: $($PublicIP.IPAddress)"
+}Else {
+    $VNic = Get-AzNetworkInterface -Name $Config.Vnet.VNicName -ResourceGroupName $Config.ResourceGroup
 }
 
 Write-Verbose "[*] Generating new credential for VM..."
@@ -188,6 +192,7 @@ If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.
     New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -VM $VMConfig
     #-AsJob
 }
+#Set-AzVMSqlServerExtension -ResourceGroupName $Config.ResourceGroup -VMName $($Config.VM.VMName) -name "SQLIaasExtension" -version "2.0" -Location $($Config.Location)
 #Stop-AzVM -ResourceGroupName $Config.ResourceGroup -Name $($Config.VM.VMName)
 #Remove-AzResourceGroup -ResourceGroupName $Config.ResourceGroup -Force
 #endregion VM Deployment
