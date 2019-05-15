@@ -6,10 +6,8 @@
     Vnet = @{
         VNetName = 'Vnet-Test-Env'
         VNetAddr = '10.7.0.0/16'
-
         SubNetName = 'LAN-Subnet'
         SubNetAddr = '10.7.0.0/24'
-
         VNicName = 'Vnic-Test-SQL-01'
         AllocationMethod = 'Dynamic'
     }
