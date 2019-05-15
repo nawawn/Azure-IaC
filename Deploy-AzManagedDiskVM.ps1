@@ -183,11 +183,10 @@ If (-Not(Test-VirtualMachine -ResourceGroup $Config.ResourceGroup -Name $Config.
         PublisherName = $($Config.VM.PublisherName)
     }
     Write-Verbose "[*]Creating the VM Configuration..."
-    $VMConfig = New-PSVirtualMachine @PSVM 
+    $VMConfig = New-PSVirtualMachine @PSVM -ErrorAction 'Stop'
     Write-Verbose "[*]Deploying the Virtual Machine..."
     Measure-Command -Expression {New-AzVM -ResourceGroupName $Config.ResourceGroup -Location $Config.Location -VM $VMConfig}
 }
-
 #Stop-AzVM -ResourceGroupName $Config.ResourceGroup -Name $($Config.VM.VMName)
 #Remove-AzResourceGroup -ResourceGroupName $Config.ResourceGroup
 #endregion VM Deployment
