@@ -27,6 +27,6 @@ Infrastructure as Code for Azure IaaS
 
 **Note**: Storage Account Name - lowercase only, can't have dash or dot.  
 
-__Deploy-AzManagedDiskVM.ps1__ Deploy Virtual Machine in Azure IaaS environment using the configuration template psd1 file. Along with the VM, this also deploys a Virutal Network with a subnet, a Virtual NIC for the VM and assign a Public IP address to the VM. 
+__Deploy-AzManagedDiskVM.ps1__ Deploy Virtual Machine in Azure IaaS environment using the configuration template psd1 file. Along with the VM, this also deploys a Virutal Network with a subnet, a Virtual NIC for the VM and assigns a Public IP address to the VM. 
 
                                         
