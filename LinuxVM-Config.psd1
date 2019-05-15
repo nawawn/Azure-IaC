@@ -1,33 +1,27 @@
 @{
     Description   = 'Azure-LinuxVM'
-
-    ResourceGroup  = 'RG-IIS-Pri'
-    Location       = 'uksouth'    
-    StorageAccount = 'storprod'
-    Type           = 'Standard_LRS'
+    ResourceGroup = 'RG-Test-Ubn-01'
+    Location      = 'ukwest'    
     
     Vnet = @{
-        VNetName = 'Vnet-IIS-Pri'
-        VNetAddr = '10.0.1.0/16'
-
-        SubnetName = 'FrontendSubnet'
-        SubnetAddr = '10.0.0.0/24'
-        
-        VNicName = 'Vnic-Ubn-Pxy'
+        VNetName = 'Vnet-Test-Env'
+        VNetAddr = '10.7.0.0/16'
+        SubnetName = 'LAN-Subnet'
+        SubnetAddr = '10.7.0.0/24'        
+        VNicName = 'Vnic-Test-Ubn-01'
         AllocationMethod = 'Dynamic'
     }
     
     VM = @{
-        VMName = 'VM-Ubn-Pxy'
+        VMName = 'VM-Test-Ubn-01'
         VMSize = 'Basic_A1'
-        VMUser = 'Naw.Awn'
-        VMPass = '' #Base64
-
-        PublisherName = 'Canonical'
+        VMUser = 'RootAdmin'
+        VMPass = 'TXIuSkJvbmQwMDc='
+	OSType = 'Linux'        
         Offer = 'UbuntuServer'
         Skus  = '18.04-LTS'
         Version = 'Latest'
-
         VhdName = 'OSD-Ubn-Pxy.vhd'
+	PublisherName = 'Canonical'
     }      
 }
