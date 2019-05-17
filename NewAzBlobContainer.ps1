@@ -43,9 +43,11 @@ Class AzBlobContainer{
     [void]newResourceGroup(){
         If (!($this.testResourceGroup())){
             Try{
-                New-AzResourceGroup -Name $this.ResourceGroup -Location $this.Location
+                New-AzResourceGroup -Name $this.ResourceGroup -Location $this.Location 
             }Catch{
-                Write-Warning "$Error.Exception"
+                Write-Warning ":("
+                Write-Warning "Error Unable to create the Resource Group."
+                break
             }
         }
         Else{
@@ -61,8 +63,10 @@ Class AzBlobContainer{
             If (!($this.testStorageAccount())){
                 Try{       
                     New-AzStorageAccount -ResourceGroupName $this.ResourceGroup -AccountName $this.AccountName -Location $this.Location -SkuName $this.StorageSkuName -Kind $this.StorageKind
-                }Catch{
-                    Write-Warning "$Error.Exception"
+                }Catch{                    
+                    Write-Warning ":("
+                    Write-Warning "Error Unable to create the Storage Account."
+                    break
                 }
             }
             Else { Write-Warning "$($this.StorageAccName) storage account already exists!"}
@@ -81,7 +85,9 @@ Class AzBlobContainer{
             Try{
                 New-AzStorageContainer -Name $this.ContainerName -Context $StorAcc.Context -Permission Blob
             }Catch{
-                Write-Warning "$Error.Exception"
+                Write-Warning ":("
+                Write-Warning "Error Unable to create the Blob Container."
+                break
             }
         }
         Else{
@@ -113,16 +119,16 @@ Function New-BlobContainer{
     $BlobObj.StorageSkuName = $SkuName
     $BlobObj.StorageKind    = $Kind
     $BlobObj.ContainerName  = $ContainerName.ToLower()
-
-    $BlobObj.testBlobContainer()
-    $BlobObj.testStorageAccountName()
-    $BlobObj.testStorageAccount()
-    $BlobObj.testResourceGroup()
-    $BlobObj.newBlobContainer()
-    #$BlobObj.newStorageAccount()
+    
+    #$BlobObj.testResourceGroup()
+    #$BlobObj.testStorageAccountName()
+    #$BlobObj.testStorageAccount()
+    #$BlobObj.testBlobContainer()
+    #$BlobObj.newBlobContainer()
+    $BlobObj.newStorageAccount()
     #$BlobObj.newResourceGroup()
-
 }
 
-New-BlobContainer -ResourceGroup 'RG-Stor-Test-Env' -Location 'ukwest' -AccountName 'stortestdev' -SkuName 'Standard_LRS' -Kind 'StorageV2' -ContainerName 'sqlbackup'
+New-BlobContainer -ResourceGroup 'RG-Stor-Test-Dev' -Location 'ukwest' -AccountName 'stortestdev' -SkuName 'Standard_LRS' -Kind 'StorageV2' -ContainerName 'sqlbackup'
 #Remove-AzStorageContainer -Name 'backup' -Context $StorAcc.Context -Force
+#Clear-Host
