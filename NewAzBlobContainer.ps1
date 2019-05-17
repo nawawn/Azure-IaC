@@ -48,8 +48,10 @@ Class AzBlobContainer{
             }Catch{
                 Write-Warning ':('
                 Write-Warning 'Error Unable to create the Resource Group.'
+                Write-Warning "$Error.Exception"
                 break
             }
+            Write-Verbose "$($this.ResourceGroup) resource group has been created!"
         }
         Else{
             Write-Warning "$($this.ResourceGroup) resource group already exists!"
@@ -67,10 +69,12 @@ Class AzBlobContainer{
                 }Catch{                    
                     Write-Warning ':('
                     Write-Warning 'Error Unable to create the Storage Account.'
+                    Write-Warning "$Error.Exception"
                     break
                 }
+                Write-Verbose "$($this.StorageAccName) storage account has been created!"
             }
-            Else { Write-Warning "$($this.StorageAccName) storage account already exists!"}
+            Else { Write-Warning "$($this.StorageAccName) storage account already exists!" }
         }
         Else{
             Write-Warning "$($this.StorageAccName) is invalid name."
@@ -82,14 +86,16 @@ Class AzBlobContainer{
             $this.newStorageAccount()
         }
         If (!($this.testBlobContainer())){
-            $StorAcc = Get-AzStorageAccount -ResourceGroupName $this.ResourceGroup -Name $this.StorageAccName
             Try{
-                New-AzStorageContainer -Name $this.ContainerName -Context $StorAcc.Context -Permission 'Blob'
+                $StorAcc = Get-AzStorageAccount -ResourceGroupName $this.ResourceGroup -Name $this.StorageAccName            
+                New-AzStorageContainer -Name $this.ContainerName -Context $StorAcc.Context -Permission 'Off'
             }Catch{
                 Write-Warning ':('
                 Write-Warning 'Error Unable to create the Blob Container.'
+                Write-Warning "$Error.Exception"
                 break
             }
+            Write-Verbose "$($this.ContainerName) container has been created!"
         }
         Else{
             Write-Warning "$($this.ContainerName) container already exists!"
@@ -98,6 +104,15 @@ Class AzBlobContainer{
 }
 
 Function New-BlobContainer{
+<#
+.DESCRIPTION
+Creates an Azure Blob storage container. This will also create the Resource Group and the Storage Account if they are not present.
+.EXAMPLE
+New-BlobContainer -ResourceGroup 'RG-Myresgroup' -AccountName 'stortestdev' -ContainerName 'testcontainer' -Verbose
+.EXAMPLE
+New-BlobContainer -ResourceGroup 'RG-Myresgroup' -Location 'ukwest' -AccountName 'stortestdev' -SkuName 'Standard_LRS' -Kind 'StorageV2' -ContainerName 'backup'
+#>
+    [CmdletBinding()]
     Param(
         [Parameter(Mandatory)][String]$ResourceGroup,
         [String]$Location,
@@ -111,12 +126,20 @@ Function New-BlobContainer{
         [Parameter(Mandatory)][String]$ContainerName
     )
 
-    $BlobObj = New-Object AzBlobContainer($ResourceGroup, $Location, $AccountName.ToLower(), $SkuName, $Kind, $ContainerName.ToLower())
-    $BlobObj.newResourceGroup()
-    $BlobObj.newStorageAccount()
-    $BlobObj.newBlobContainer()
+    If (!($Location) -and !($SkuName) -and !($Kind)){
+        $BlobObj = New-Object AzBlobContainer($ResourceGroup, $AccountName, $ContainerName)
+        #$BlobObj.newResourceGroup()
+        #$BlobObj.newStorageAccount()
+        $BlobObj.newBlobContainer()
+    }
+    Else{
+        $BlobObj = New-Object AzBlobContainer($ResourceGroup, $Location, $AccountName, $SkuName, $Kind, $ContainerName)
+        #$BlobObj.newResourceGroup()
+        #$BlobObj.newStorageAccount()
+        $BlobObj.newBlobContainer()
+    }
 }
 
-New-BlobContainer -ResourceGroup 'RG-Stor-Test-Dev' -Location 'ukwest' -AccountName 'stortestdev' -SkuName 'Standard_LRS' -Kind 'StorageV2' -ContainerName 'sqlbackup'
+#$StorAcc = Get-AzStorageAccount -ResourceGroupName 'RG-Myresgroup' -Name 'stortestdev'
 #Remove-AzStorageContainer -Name 'backup' -Context $StorAcc.Context -Force
-#Clear-Host
+#Remove-AzResourceGroup -ResourceGroupName  'RG-Myresgroup' -Force
