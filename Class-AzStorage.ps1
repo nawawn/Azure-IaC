@@ -96,7 +96,7 @@ Class BlobContainer:StorageAccount{
         }        
     }
     [bool]IsValidName(){
-        #Only characters lowercase a to z.
+        #Only lowercase characters a to z and numbers.
         $Regex = '^[a-z0-9]+$'
         return ($this.ContainerName -cmatch $Regex)
     }
