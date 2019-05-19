@@ -157,7 +157,23 @@ Class Queue:StorageAccount{
     [void]CreateQueue(){}
 }
 
-Function New-xBlobContainer{}
-Function New-xFileShare{}
-Function New-xTable{}
-Function New-xQueue{}
+Function New-xBlobContainer{
+    # Create Resource Group
+    # Create Storage Account
+    # Create blob storage
+}
+Function New-xFileShare{
+    # Create Resource Group
+    # Create Storage Account
+    # Create File Share
+}
+Function New-xTable{
+    # Create Resource Group
+    # Create Storage Account
+    # Create Table
+}
+Function New-xQueue{
+    # Create Resource Group
+    # Create Storage Account
+    # Create Queue
+}
