@@ -14,8 +14,7 @@ Class ResourceGroup{
     [void]CreateResourceGroup(){
         If($this.Exists()){
             Write-Warning "$($this.ResourceGroup) resource group already exists!"
-        }
-        Else{
+        }Else{
             Try{
                 New-AzResourceGroup -Name $this.ResourceGroup -Location $this.Location 
             }Catch{            
@@ -46,7 +45,7 @@ Class StorageAccount:ResourceGroup{
     }
     [bool]IsValidName(){
         #Only characters lowercase a to z.
-        $Regex = '^[a-z]+$'
+        $Regex = '^[a-z0-9]+$'
         return ($this.StorageAccName -cmatch $Regex)
     }
     [void]CreateStorageAccount(){
@@ -55,23 +54,19 @@ Class StorageAccount:ResourceGroup{
                 If (-Not($this.Exists())){
                     Try{
                         New-AzStorageAccount -ResourceGroupName $([ResourceGroup]$this.ResourceGroup) -Name $this.StorageAccName -SkuName $this.StorageSku -Kind $this.StorageKind
-                    }
-                    Catch{
+                    }Catch{
                         Write-Warning ':( Error! Unable to create the Storage Account.'
                         Write-Warning "$Error.Exception"
                         break
                     }
                     Write-Verbose "$($this.StorageAccName) has been created!"
-                }
-                Else{
+                }Else{
                     Write-warning "$($this.StorageAccName) storage account already exists!"
                 }
-            }
-            Else{
+            }Else{
                 Write-warning "Please create the resource group first!"
             }
-        }
-        Else{
+        }Else{
             Write-Warning "$($this.StorageAccName) is invalid storage name."
         }
     }
@@ -107,23 +102,19 @@ Class BlobContainer:StorageAccount{
                     Try{
                         $this.SetContext()                        
                         New-AzStorageContainer -Name $this.ContainerName -Context $this.Context -Permission 'Blob'
-                    }
-                    Catch{                        
+                    }Catch{                        
                         Write-Warning ':( Erro! Unable to create the Blob Container.'
                         Write-Warning "$Error.Exception"
                         break
                     }
                     Write-Verbose "$($this.ContainerName) container has been created!"
-                }
-                Else{
+                }Else{
                     Write-Warning "$($this.ContainerName) blob container already exists!"
                 }
-            }
-            Else{
+            }Else{
                 Write-Warning "Please create the storage account first!"
             }
-        }
-        Else{
+        }Else{
             Write-Warning "$($this.ContainerName) is invalid container name"
         }
     }
