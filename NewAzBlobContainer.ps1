@@ -8,15 +8,13 @@ Class AzBlobContainer{
 
     AzBlobContainer(){}
    
-    AzBlobContainer([String]$ResourceGroup, [String]$StorageAccName, [String]$ContainerName)
-    {        
+    AzBlobContainer([String]$ResourceGroup, [String]$StorageAccName, [String]$ContainerName){
         $this.ResourceGroup  = $ResourceGroup        
         $this.StorageAccName = $StorageAccName.ToLower()         
         $this.ContainerName  = $ContainerName
     }
 
-    AzBlobContainer([String]$ResourceGroup, [String]$Location, [String]$StorageAccName, [String]$StorageSkuName, [String]$StorageKind, [String]$ContainerName)
-    {        
+    AzBlobContainer([String]$ResourceGroup, [String]$Location, [String]$StorageAccName, [String]$StorageSkuName, [String]$StorageKind, [String]$ContainerName){
         $this.ResourceGroup  = $ResourceGroup
         $this.Location       = $Location
         $this.StorageAccName = $StorageAccName.ToLower()
@@ -27,7 +25,7 @@ Class AzBlobContainer{
 
     [bool]testStorageAccountName(){
         #Only characters lowercase a to z.
-        $Regex = '^[a-z]+$'
+        $Regex = '^[a-z0-9]+$'
         return ($this.StorageAccName -cmatch $Regex)
     }
     [bool]testResourceGroup(){
@@ -81,14 +79,14 @@ Class AzBlobContainer{
         }
     }
 
-    [void]newBlobContainer(){       
+    [void]newBlobContainer(){
         If (!($this.testStorageAccount())){
             $this.newStorageAccount()
         }
         If (!($this.testBlobContainer())){
             Try{
                 $StorAcc = Get-AzStorageAccount -ResourceGroupName $this.ResourceGroup -Name $this.StorageAccName            
-                New-AzStorageContainer -Name $this.ContainerName -Context $StorAcc.Context -Permission 'Off'
+                New-AzStorageContainer -Name $this.ContainerName -Context $StorAcc.Context -Permission 'Blob'
             }Catch{
                 Write-Warning ':('
                 Write-Warning 'Error Unable to create the Blob Container.'
@@ -120,7 +118,7 @@ New-BlobContainer -ResourceGroup 'RG-Myresgroup' -Location 'ukwest' -AccountName
         [Parameter(Mandatory)][String]$AccountName,        
         [AllowNull()][ValidateSet('Standard_LRS','Standard_ZRS','Standard_GRS','Standard_RAGRS','Premium_LRS')]
         [String]$SkuName,        
-        [AllowNull()][ValidateSet('Storage','StorageV2','BlobStorage','BlockBlobStorage')]
+        [AllowNull()][ValidateSet('StorageV2','BlobStorage','BlockBlobStorage')]
         [String]$Kind,
         
         [Parameter(Mandatory)][String]$ContainerName
