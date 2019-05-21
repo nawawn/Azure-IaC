@@ -8,15 +8,13 @@ Class AzBlobContainer{
 
     AzBlobContainer(){}
    
-    AzBlobContainer([String]$ResourceGroup, [String]$StorageAccName, [String]$ContainerName)
-    {        
+    AzBlobContainer([String]$ResourceGroup, [String]$StorageAccName, [String]$ContainerName){
         $this.ResourceGroup  = $ResourceGroup        
         $this.StorageAccName = $StorageAccName.ToLower()         
         $this.ContainerName  = $ContainerName
     }
 
-    AzBlobContainer([String]$ResourceGroup, [String]$Location, [String]$StorageAccName, [String]$StorageSkuName, [String]$StorageKind, [String]$ContainerName)
-    {        
+    AzBlobContainer([String]$ResourceGroup, [String]$Location, [String]$StorageAccName, [String]$StorageSkuName, [String]$StorageKind, [String]$ContainerName){
         $this.ResourceGroup  = $ResourceGroup
         $this.Location       = $Location
         $this.StorageAccName = $StorageAccName.ToLower()
@@ -24,9 +22,10 @@ Class AzBlobContainer{
         $this.StorageKind    = $StorageKind
         $this.ContainerName  = $ContainerName.ToLower()
     }
+
     [bool]testStorageAccountName(){
         #Only characters lowercase a to z.
-        $Regex = '^[a-z]+$'
+        $Regex = '^[a-z0-9]+$'
         return ($this.StorageAccName -cmatch $Regex)
     }
     [bool]testResourceGroup(){
@@ -36,7 +35,7 @@ Class AzBlobContainer{
         return ($null -ne (Get-AzStorageAccount -ResourceGroupName $this.ResourceGroup -Name $this.StorageAccName -ErrorAction 'SilentlyContinue'))
     }
     [bool]testBlobContainer(){
-        $Context = (Get-AzStorageAccount -ResourceGroup $this.ResourceGroup -Name $this.StorageAccName).Context
+        $Context = (Get-AzStorageAccount -ResourceGroupName $this.ResourceGroup -Name $this.StorageAccName).Context
         return ($null -ne (Get-AzStorageContainer -Name $this.ContainerName -Context $Context -ErrorAction 'SilentlyContinue'))
     }
 
@@ -45,10 +44,12 @@ Class AzBlobContainer{
             Try{
                 New-AzResourceGroup -Name $this.ResourceGroup -Location $this.Location 
             }Catch{
-                Write-Warning ":("
-                Write-Warning "Error Unable to create the Resource Group."
+                Write-Warning ':('
+                Write-Warning 'Error Unable to create the Resource Group.'
+                Write-Warning "$Error.Exception"
                 break
             }
+            Write-Verbose "$($this.ResourceGroup) resource group has been created!"
         }
         Else{
             Write-Warning "$($this.ResourceGroup) resource group already exists!"
@@ -62,33 +63,37 @@ Class AzBlobContainer{
             }
             If (!($this.testStorageAccount())){
                 Try{       
-                    New-AzStorageAccount -ResourceGroupName $this.ResourceGroup -AccountName $this.AccountName -Location $this.Location -SkuName $this.StorageSkuName -Kind $this.StorageKind
+                    New-AzStorageAccount -ResourceGroupName $this.ResourceGroup -Name $this.StorageAccName -Location $this.Location -SkuName $this.StorageSkuName -Kind $this.StorageKind
                 }Catch{                    
-                    Write-Warning ":("
-                    Write-Warning "Error Unable to create the Storage Account."
+                    Write-Warning ':('
+                    Write-Warning 'Error Unable to create the Storage Account.'
+                    Write-Warning "$Error.Exception"
                     break
                 }
+                Write-Verbose "$($this.StorageAccName) storage account has been created!"
             }
-            Else { Write-Warning "$($this.StorageAccName) storage account already exists!"}
+            Else { Write-Warning "$($this.StorageAccName) storage account already exists!" }
         }
         Else{
             Write-Warning "$($this.StorageAccName) is invalid name."
         }
     }
 
-    [void]newBlobContainer(){       
+    [void]newBlobContainer(){
         If (!($this.testStorageAccount())){
             $this.newStorageAccount()
         }
         If (!($this.testBlobContainer())){
-            $StorAcc = Get-AzStorageAccount -ResourceGroupName $this.ResourceGroup -AccountName $this.StorageAccName
             Try{
-                New-AzStorageContainer -Name $this.ContainerName -Context $StorAcc.Context -Permission Blob
+                $StorAcc = Get-AzStorageAccount -ResourceGroupName $this.ResourceGroup -Name $this.StorageAccName            
+                New-AzStorageContainer -Name $this.ContainerName -Context $StorAcc.Context -Permission 'Blob'
             }Catch{
-                Write-Warning ":("
-                Write-Warning "Error Unable to create the Blob Container."
+                Write-Warning ':('
+                Write-Warning 'Error Unable to create the Blob Container.'
+                Write-Warning "$Error.Exception"
                 break
             }
+            Write-Verbose "$($this.ContainerName) container has been created!"
         }
         Else{
             Write-Warning "$($this.ContainerName) container already exists!"
@@ -97,38 +102,42 @@ Class AzBlobContainer{
 }
 
 Function New-BlobContainer{
+<#
+.DESCRIPTION
+Creates an Azure Blob storage container. This will also create the Resource Group and the Storage Account if they are not present.
+.EXAMPLE
+New-BlobContainer -ResourceGroup 'RG-Myresgroup' -AccountName 'stortestdev' -ContainerName 'testcontainer' -Verbose
+.EXAMPLE
+New-BlobContainer -ResourceGroup 'RG-Myresgroup' -Location 'ukwest' -AccountName 'stortestdev' -SkuName 'Standard_LRS' -Kind 'StorageV2' -ContainerName 'backup'
+#>
+    [CmdletBinding()]
     Param(
-        [Parameter(Mandatory)]
-        [String]$ResourceGroup,
+        [Parameter(Mandatory)][String]$ResourceGroup,
         [String]$Location,
-        [Parameter(Mandatory)]
-        [String]$AccountName,
-        [String]$SkuName,
+        
+        [Parameter(Mandatory)][String]$AccountName,        
+        [AllowNull()][ValidateSet('Standard_LRS','Standard_ZRS','Standard_GRS','Standard_RAGRS','Premium_LRS')]
+        [String]$SkuName,        
+        [AllowNull()][ValidateSet('StorageV2','BlobStorage','BlockBlobStorage')]
         [String]$Kind,
-        [Parameter(Mandatory)]
-        [String]$ContainerName
+        
+        [Parameter(Mandatory)][String]$ContainerName
     )
 
-    #$BlobObj = New-Object AzBlobContainer($ResourceGroup, $Location, $AccountName, $SkuName, $Kind, $ContainerName)
-    #$BlobObj.newBlobContainer()
-
-    $BlobObj = New-Object AzBlobContainer
-    $BlobObj.ResourceGroup  = $ResourceGroup
-    $BlobObj.Location       = $Location
-    $BlobObj.StorageAccName = $AccountName
-    $BlobObj.StorageSkuName = $SkuName
-    $BlobObj.StorageKind    = $Kind
-    $BlobObj.ContainerName  = $ContainerName.ToLower()
-    
-    #$BlobObj.testResourceGroup()
-    #$BlobObj.testStorageAccountName()
-    #$BlobObj.testStorageAccount()
-    #$BlobObj.testBlobContainer()
-    #$BlobObj.newBlobContainer()
-    $BlobObj.newStorageAccount()
-    #$BlobObj.newResourceGroup()
+    If (!($Location) -and !($SkuName) -and !($Kind)){
+        $BlobObj = New-Object AzBlobContainer($ResourceGroup, $AccountName, $ContainerName)
+        #$BlobObj.newResourceGroup()
+        #$BlobObj.newStorageAccount()
+        $BlobObj.newBlobContainer()
+    }
+    Else{
+        $BlobObj = New-Object AzBlobContainer($ResourceGroup, $Location, $AccountName, $SkuName, $Kind, $ContainerName)
+        #$BlobObj.newResourceGroup()
+        #$BlobObj.newStorageAccount()
+        $BlobObj.newBlobContainer()
+    }
 }
 
-New-BlobContainer -ResourceGroup 'RG-Stor-Test-Dev' -Location 'ukwest' -AccountName 'stortestdev' -SkuName 'Standard_LRS' -Kind 'StorageV2' -ContainerName 'sqlbackup'
+#$StorAcc = Get-AzStorageAccount -ResourceGroupName 'RG-Myresgroup' -Name 'stortestdev'
 #Remove-AzStorageContainer -Name 'backup' -Context $StorAcc.Context -Force
-#Clear-Host
+#Remove-AzResourceGroup -ResourceGroupName  'RG-Myresgroup' -Force
