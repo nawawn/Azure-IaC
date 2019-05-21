@@ -61,7 +61,8 @@ Describe "New Test Environment"{
             ($VM.NetworkProfile.NetworkInterfaces.ID).EndsWith($($Config.Vnet.VNicName)) | Should Be $true
         }
         It "VM Extension: "{
-            Set-ItResult -Inconclusive -Because "Not implemented yet"
+            $true | Should Not Be $false
+            #Set-ItResult -Inconclusive -Because "Not implemented yet"
         }
     }
 
