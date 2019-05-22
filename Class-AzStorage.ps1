@@ -14,10 +14,12 @@ Class ResourceGroup{
     [void]CreateResourceGroup(){
         If($this.Exists()){
             Write-Warning "$($this.ResourceGroup) resource group already exists!"
-        }Else{
+        }
+        Else{
             Try{
                 New-AzResourceGroup -Name $this.ResourceGroup -Location $this.Location 
-            }Catch{            
+            }
+            Catch{            
                 Write-Warning ':( Error! Unable to create the Resource Group.'
                 Write-Warning "$Error.Exception"
                 break
@@ -37,14 +39,11 @@ Class StorageAccount:ResourceGroup{
         $this.StorageSku     = $StorSku
         $this.StorageKind    = $StorKind
     }
-    [bool]Exists(){
-        If(([ResourceGroup]$this).Exists()){
-            return ($null -ne (Get-AzStorageAccount -ResourceGroupName $([ResourceGroup]$this.ResourceGroup) -Name $this.StorageAccName -ErrorAction 'SilentlyContinue'))
-        }
-        Else {return $false}
+    [bool]Exists(){        
+        return ($null -ne (Get-AzStorageAccount -ResourceGroupName $([ResourceGroup]$this.ResourceGroup) -Name $this.StorageAccName -ErrorAction 'SilentlyContinue'))        
     }
     [bool]IsValidName(){
-        #Only characters lowercase a to z.
+        #Only characters lowercase a to z and numbers.
         $Regex = '^[a-z0-9]+$'
         return ($this.StorageAccName -cmatch $Regex)
     }
@@ -54,19 +53,23 @@ Class StorageAccount:ResourceGroup{
                 If (-Not($this.Exists())){
                     Try{
                         New-AzStorageAccount -ResourceGroupName $([ResourceGroup]$this.ResourceGroup) -Name $this.StorageAccName -SkuName $this.StorageSku -Kind $this.StorageKind
-                    }Catch{
+                    }
+                    Catch{
                         Write-Warning ':( Error! Unable to create the Storage Account.'
                         Write-Warning "$Error.Exception"
                         break
                     }
                     Write-Verbose "$($this.StorageAccName) has been created!"
-                }Else{
+                }
+                Else{
                     Write-warning "$($this.StorageAccName) storage account already exists!"
                 }
-            }Else{
+            }
+            Else{
                 Write-warning "Please create the resource group first!"
             }
-        }Else{
+        }
+        Else{
             Write-Warning "$($this.StorageAccName) is invalid storage name."
         }
     }
@@ -81,7 +84,7 @@ Class BlobContainer:StorageAccount{
     [void]SetContext(){
         $this.Context = (Get-AzStorageAccount -Name ([StorageAccount]$this).StorageAccName -ResourceGroupName ([ResourceGroup]$this).ResourceGroup).Context
     }
-    [bool]Exits(){
+    [bool]Exists(){
         If( ([StorageAccount]$this).Exists() ){
             $this.SetContext()
             return ($null -ne (Get-AzStorageContainer -Name $this.ContainerName -Context $this.Context))
@@ -102,19 +105,23 @@ Class BlobContainer:StorageAccount{
                     Try{
                         $this.SetContext()                        
                         New-AzStorageContainer -Name $this.ContainerName -Context $this.Context -Permission 'Blob'
-                    }Catch{                        
-                        Write-Warning ':( Erro! Unable to create the Blob Container.'
+                    }
+                    Catch{                        
+                        Write-Warning ':( Error! Unable to create the Blob Container.'
                         Write-Warning "$Error.Exception"
                         break
                     }
                     Write-Verbose "$($this.ContainerName) container has been created!"
-                }Else{
+                }
+                Else{
                     Write-Warning "$($this.ContainerName) blob container already exists!"
                 }
-            }Else{
+            }
+            Else{
                 Write-Warning "Please create the storage account first!"
             }
-        }Else{
+        }
+        Else{
             Write-Warning "$($this.ContainerName) is invalid container name"
         }
     }
