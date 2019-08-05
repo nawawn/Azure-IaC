@@ -1,4 +1,4 @@
-#Future Implementation for transitive dependency (Work in Progress)
+#Implementation for transitive dependency (Work in Progress)
 Class ResourceGroup{
     [String]$ResourceGroup
     [String]$Location = 'ukwest'
